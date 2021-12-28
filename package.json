@@ -1,0 +1,31 @@
+{
+  "name": "natours",
+  "version": "1.0.0",
+  "description": "Natours project with node",
+  "main": "index.js",
+  "author": "nwagu chima",
+  "license": "MIT",
+  "scripts": {
+    "start": "node dist/app.js",
+    "dev": "nodemon dist/app.js",
+    "build": "tsc -w"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@typescript-eslint/eslint-plugin": "^5.8.1",
+    "@typescript-eslint/parser": "^5.8.1",
+    "eslint": "^8.5.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-prettier": "^4.0.0",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.5.1"
+  },
+  "dependencies": {
+    "@types/node": "^17.0.5",
+    "express": "^4.17.2",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.4"
+  }
+}
