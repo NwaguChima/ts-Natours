@@ -21,6 +21,16 @@ const checkId = (
   next();
 };
 
+const checkBody = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.body.name || !req.body.price) {
+    return res.status(499).json({
+      status: 'fail',
+      message: 'Missing name or price',
+    });
+  }
+  next();
+};
+
 const getAllTours = (req: CustomReq, res: Response) => {
   console.log(req.requestTime);
 
@@ -89,4 +99,5 @@ export default {
   updateTour,
   deleteTour,
   checkId,
+  checkBody,
 };

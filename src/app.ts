@@ -9,8 +9,12 @@ import userRouter from './routes/userRoutes';
 const app: Application = express();
 
 // MIDDLEWARE
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
+
 app.use(express.json());
+app.use(express.static(`${__dirname}/public`));
 
 // ROUTE HANDLERS
 app.use((req: Request, res: Response, next: NextFunction) => {
