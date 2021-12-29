@@ -11,11 +11,25 @@ import Tour from '../model/tourModel';
 const getAllTours = async (req: CustomReq, res: Response) => {
   try {
     // BUILD QUERY
+    //  1) Filtering
     const queryObj = { ...req.query };
     const exludedFields = ['page', 'sort', 'limit', 'fields'];
     exludedFields.forEach((el) => delete queryObj[el]);
 
-    const query = Tour.find(queryObj);
+    // 1b) Advanced Filtering
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+
+    let query = Tour.find(JSON.parse(queryStr));
+
+    // 2) Sorting
+    if (req.query.sort) {
+      let sortBy = req.query.sort as string;
+      sortBy = sortBy.split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createdAt');
+    }
 
     // const tours = await Tour.find()
     //   .where('duration')
