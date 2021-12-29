@@ -1,10 +1,30 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
+import express, {
+  Application,
+  Request,
+  Response,
+  NextFunction,
+  query,
+} from 'express';
 import { CustomReq } from '../custom';
 import Tour from '../model/tourModel';
 
 const getAllTours = async (req: CustomReq, res: Response) => {
   try {
-    const tours = await Tour.find();
+    // BUILD QUERY
+    const queryObj = { ...req.query };
+    const exludedFields = ['page', 'sort', 'limit', 'fields'];
+    exludedFields.forEach((el) => delete queryObj[el]);
+
+    const query = Tour.find(queryObj);
+
+    // const tours = await Tour.find()
+    //   .where('duration')
+    //   .equals(5)
+    //   .where('difficulty')
+    //   .equals('easy');
+
+    // EXECUTE QUERY
+    const tours = await query;
 
     res.status(200).json({
       status: 'success',
