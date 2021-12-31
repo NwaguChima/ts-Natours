@@ -3,6 +3,7 @@ import catchAsync from '../utils/catchAsync';
 import { CustomReq } from '../custom';
 import Tour from '../model/tourModel';
 import APIFeatures from '../utils/apiFeatures';
+import AppError from '../utils/appError';
 
 const aliasTopTours = (req: CustomReq, res: Response, next: NextFunction) => {
   req.query.limit = '5';
@@ -12,29 +13,32 @@ const aliasTopTours = (req: CustomReq, res: Response, next: NextFunction) => {
   next();
 };
 
-const getAllTours = catchAsync(
-  async (req: CustomReq, res: Response, next: NextFunction) => {
-    // EXECUTE QUERY
-    const features = new APIFeatures(Tour.find(), req.query)
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
-    const tours = await features.query;
+const getAllTours = catchAsync(async (req: CustomReq, res: Response) => {
+  // EXECUTE QUERY
+  const features = new APIFeatures(Tour.find(), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const tours = await features.query;
 
-    res.status(200).json({
-      status: 'success',
-      results: tours.length,
-      data: {
-        tours,
-      },
-    });
-  }
-);
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: {
+      tours,
+    },
+  });
+});
 
 const getTour = catchAsync(
   async (req: CustomReq, res: Response, next: NextFunction) => {
     const tour = await Tour.findById(req.params.id);
+
+    if (!tour) {
+      return next(new AppError(`No tour found with that ID`, 404));
+    }
+
     res.status(200).json({
       status: 'success',
       data: {
@@ -62,6 +66,10 @@ const updateTour = catchAsync(
       runValidators: true,
     });
 
+    if (!tour) {
+      return next(new AppError(`No tour found with that ID`, 404));
+    }
+
     res.status(200).json({
       status: 'success',
       data: {
@@ -73,7 +81,11 @@ const updateTour = catchAsync(
 
 const deleteTour = catchAsync(
   async (req: CustomReq, res: Response, next: NextFunction) => {
-    await Tour.findByIdAndDelete(req.params.id);
+    const tour = await Tour.findByIdAndDelete(req.params.id);
+
+    if (!tour) {
+      return next(new AppError(`No tour found with that ID`, 404));
+    }
 
     res.status(204).json({
       status: 'success',
