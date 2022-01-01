@@ -8,7 +8,9 @@ export interface IUser extends Document {
   password: string;
   passwordConfirm: string | undefined;
   photo?: string;
+  passwordChangedAt: Date;
   correctPassword(candidatePassword: string, userPassword: string): boolean;
+  changedPasswordAfter(JWTTimestamp: Date): boolean;
 }
 
 const userSchema: Schema<IUser> = new mongoose.Schema({
@@ -41,6 +43,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
       message: 'Passwords are not the same',
     },
   },
+  passwordChangedAt: Date,
 });
 
 userSchema.pre('save', async function (next) {
@@ -59,6 +62,20 @@ userSchema.methods.correctPassword = function (
   userPassword
 ) {
   return bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    let changedTimestamp = this.passwordChangedAt.getTime() / 1000;
+
+    changedTimestamp = parseInt(changedTimestamp.toString(), 10);
+
+    console.log(changedTimestamp, JWTTimestamp);
+    return JWTTimestamp < changedTimestamp;
+  }
+
+  // falsle means not changed
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);

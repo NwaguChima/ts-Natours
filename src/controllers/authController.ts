@@ -1,9 +1,10 @@
 import express, { Request, Response, NextFunction } from 'express';
+import { promisify } from 'util';
 import jwt from 'jsonwebtoken';
-import { token } from 'morgan';
 import User from '../model/userModel';
 import AppError from '../utils/appError';
 import catchAsync from '../utils/catchAsync';
+import { CustomUserReq } from '../custom';
 
 const signToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET!, {
@@ -17,6 +18,7 @@ const signUp = catchAsync(async (req: Request, res: Response) => {
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
+    passwordChangedAt: req.body.passwordChangedAt,
   });
 
   const token = signToken(newUser._id);
@@ -56,7 +58,7 @@ const login = catchAsync(
 );
 
 const protect = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: CustomUserReq, _res: Response, next: NextFunction) => {
     //1 ) Getting token and check if it exist
     let token;
     if (
@@ -77,8 +79,33 @@ const protect = catchAsync(
     }
 
     //2) Validate token, verification
+    const decoded: any = await jwt.verify(token, process.env.JWT_SECRET!);
+
     // 3) Check if user still exist
-    // 4) Check if user changed password after token was issued.
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) {
+      return next(
+        new AppError(
+          'The user belonging to this token does no longer exist',
+          401
+        )
+      );
+    }
+
+    //4) Check if user changed password afer the token was issued.
+    if (currentUser.changedPasswordAfter(decoded.iat)) {
+      return next(
+        new AppError(
+          'User recently changed password! Please log in again.',
+          401
+        )
+      );
+    }
+
+    // Grant access to protected route
+    req.user = currentUser;
+
+    next();
   }
 );
 
