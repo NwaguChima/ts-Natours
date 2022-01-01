@@ -26,6 +26,7 @@ app.use(express.static(`${__dirname}/public`));
 // ROUTE HANDLERS
 app.use((req: CustomReq, res: Response, next: NextFunction) => {
   req.requestTime = new Date().toISOString();
+  //
   next();
 });
 
