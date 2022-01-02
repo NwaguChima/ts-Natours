@@ -8,6 +8,7 @@ export interface IUser extends Document {
   password: string;
   passwordConfirm: string | undefined;
   photo?: string;
+  role: string;
   passwordChangedAt: Date;
   correctPassword(candidatePassword: string, userPassword: string): boolean;
   changedPasswordAfter(JWTTimestamp: Date): boolean;
@@ -26,6 +27,11 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
     validate: [validator.isEmail, 'Please provide a valid email'],
   },
   photo: String,
+  role: {
+    type: String,
+    enum: ['user', 'guide', 'lead-guide', 'admin'],
+    default: 'user',
+  },
   password: {
     type: String,
     required: [true, 'Please provide a password'],

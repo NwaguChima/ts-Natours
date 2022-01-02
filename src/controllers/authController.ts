@@ -19,6 +19,7 @@ const signUp = catchAsync(async (req: Request, res: Response) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
     passwordChangedAt: req.body.passwordChangedAt,
+    role: req.body.role,
   });
 
   const token = signToken(newUser._id);
@@ -67,7 +68,6 @@ const protect = catchAsync(
     ) {
       token = req.headers.authorization.split(' ')[1];
     }
-    console.log(token);
 
     if (!token) {
       return next(
@@ -109,8 +109,21 @@ const protect = catchAsync(
   }
 );
 
+const restrictTo = (...roles: [string]) => {
+  return (req: CustomUserReq, res: Response, next: NextFunction) => {
+    // roles ['admin', lead-guide]
+    if (!roles.includes(req.user!.role)) {
+      return next(
+        new AppError('You do not have permission to perform this action', 403)
+      );
+    }
+    next();
+  };
+};
+
 export default {
   signUp,
   login,
   protect,
+  restrictTo,
 };
