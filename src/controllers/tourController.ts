@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import catchAsync from '../utils/catchAsync';
-import { CustomReq } from '../custom';
+import { CustomReq } from '../model/custom';
 import Tour from '../model/tourModel';
 import APIFeatures from '../utils/apiFeatures';
 import AppError from '../utils/appError';

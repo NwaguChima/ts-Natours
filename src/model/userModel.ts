@@ -13,6 +13,7 @@ export interface IUser extends Document {
   passwordChangedAt: Date;
   passwordResetToken: string | undefined;
   passwordResetExpires: Date | undefined;
+  active: boolean;
 
   correctPassword(candidatePassword: string, userPassword: string): boolean;
   changedPasswordAfter(JWTTimestamp: Date): boolean;
@@ -57,6 +58,11 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 userSchema.pre('save', async function (next) {
@@ -78,6 +84,12 @@ userSchema.pre('save', function (next) {
   const date = (Date.now() - 1000) as unknown as Date;
   this.passwordChangedAt = date;
 
+  next();
+});
+
+userSchema.pre(/^find/, function (this: any, next) {
+  // this point to the current query
+  this.find({ active: { $ne: false } });
   next();
 });
 

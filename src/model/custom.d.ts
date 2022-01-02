@@ -1,5 +1,5 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
-import { IUser } from './model/userModel';
+import { IUser } from './userModel';
 
 // export interface ReqUser extends Document {
 //   name?: string;

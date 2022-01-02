@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import User, { IUser } from '../model/userModel';
 import AppError from '../utils/appError';
 import catchAsync from '../utils/catchAsync';
-import { CustomUserReq } from '../custom';
+import { CustomUserReq } from '../model/custom';
 import sendEmail from '../utils/email';
 
 const signToken = (id: string) => {
@@ -15,6 +15,28 @@ const signToken = (id: string) => {
 
 const createSendToken = (user: IUser, statusCode: number, res: Response) => {
   const token = signToken(user!._id);
+
+  const date =
+    (process.env.JWT_COOKIE_EXPIRES_IN as unknown as number) *
+    24 *
+    60 *
+    60 *
+    1000;
+
+  const cookieOptions = {
+    expires: new Date(Date.now() + date),
+    secure: false,
+    httpOnly: true,
+  };
+
+  if (process.env.NODE_ENV === 'production') {
+    cookieOptions.secure = true;
+  }
+
+  res.cookie('jwt', token, cookieOptions);
+
+  //set password to undefined to hide it.
+  user.password = undefined as any;
 
   res.status(statusCode).json({
     status: 'success',
@@ -50,7 +72,7 @@ const login = catchAsync(
     // 2) check if user exists && password is correct
     const user = await User.findOne({ email }).select('+password');
 
-    if (!user || !(await user.correctPassword(password, user.password))) {
+    if (!user || !(await user.correctPassword(password, user.password!))) {
       return next(new AppError(`Incorrect email or password`, 401));
     }
 
