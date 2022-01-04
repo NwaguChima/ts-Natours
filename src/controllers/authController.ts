@@ -132,7 +132,7 @@ const protect = catchAsync(
   }
 );
 
-const restrictTo = (...roles: [string, string]) => {
+const restrictTo = (...roles: [string?, string?]) => {
   return (req: CustomUserReq, res: Response, next: NextFunction) => {
     // roles ['admin', lead-guide]
     if (!roles.includes(req.user!.role)) {
