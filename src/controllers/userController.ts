@@ -3,6 +3,7 @@ import { CustomUserReq } from '../model/custom';
 import User from '../model/userModel';
 import AppError from '../utils/appError';
 import catchAsync from '../utils/catchAsync';
+import handlerFactory from './handlerFactory';
 
 const filterObj = (obj: any, ...allowedFields: [string, string]) => {
   const newObj: any = {};
@@ -84,19 +85,9 @@ const createUser = (req: Request, res: Response) => {
   });
 };
 
-const updateUser = (req: Request, res: Response) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined',
-  });
-};
-
-const deleteUser = (req: Request, res: Response) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined',
-  });
-};
+// Do NOT update password with this;
+const updateUser = handlerFactory.updateOne(User);
+const deleteUser = handlerFactory.deleteOne(User);
 
 export default {
   getAllUsers,

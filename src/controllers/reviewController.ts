@@ -1,10 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
+import { factory } from 'typescript';
+import { CustomUserReq } from '../model/custom';
 import Review from '../model/reviewModel';
 import catchAsync from '../utils/catchAsync';
+import handlerFactory from './handlerFactory';
 
 const getAllReview = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const reviews = await Review.find();
+    let filter = {};
+    if (req.params.tourId) filter = { tour: req.params.tourId };
+
+    const reviews = await Review.find(filter);
 
     res.status(200).json({
       status: 'success',
@@ -16,20 +22,26 @@ const getAllReview = catchAsync(
   }
 );
 
-const createReview = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const newReview = await Review.create(req.body);
+const setTourUserIds = (
+  req: CustomUserReq,
+  res: Response,
+  next: NextFunction
+) => {
+  // Allow nested routes
+  if (!req.body.tour) req.body.tour = req.params.tourId;
+  if (!req.body.user) req.body.user = req.user!.id;
+  next();
+};
 
-    res.status(201).json({
-      status: 'success',
-      data: {
-        review: newReview,
-      },
-    });
-  }
-);
+const createReview = handlerFactory.createOne(Review);
+
+const updateReview = handlerFactory.updateOne(Review);
+const deleteReview = handlerFactory.deleteOne(Review);
 
 export default {
   createReview,
   getAllReview,
+  deleteReview,
+  updateReview,
+  setTourUserIds,
 };

@@ -4,6 +4,8 @@ import { CustomReq } from '../model/custom';
 import Tour from '../model/tourModel';
 import APIFeatures from '../utils/apiFeatures';
 import AppError from '../utils/appError';
+import handlerFactory from './handlerFactory';
+import { factory } from 'typescript';
 
 const aliasTopTours = (req: CustomReq, res: Response, next: NextFunction) => {
   req.query.limit = '5';
@@ -31,68 +33,11 @@ const getAllTours = catchAsync(async (req: CustomReq, res: Response) => {
   });
 });
 
-const getTour = catchAsync(
-  async (req: CustomReq, res: Response, next: NextFunction) => {
-    const tour = await Tour.findById(req.params.id);
+const getTour = handlerFactory.getOne(Tour, { path: 'reviews' });
 
-    if (!tour) {
-      return next(new AppError(`No tour found with that ID`, 404));
-    }
-
-    res.status(200).json({
-      status: 'success',
-      data: {
-        tour,
-      },
-    });
-  }
-);
-
-const createTour = catchAsync(async (req: Request, res: Response) => {
-  const newTour = await Tour.create(req.body);
-
-  res.status(201).json({
-    status: 'success',
-    data: {
-      tour: newTour,
-    },
-  });
-});
-
-const updateTour = catchAsync(
-  async (req: CustomReq, res: Response, next: NextFunction) => {
-    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!tour) {
-      return next(new AppError(`No tour found with that ID`, 404));
-    }
-
-    res.status(200).json({
-      status: 'success',
-      data: {
-        tour: tour,
-      },
-    });
-  }
-);
-
-const deleteTour = catchAsync(
-  async (req: CustomReq, res: Response, next: NextFunction) => {
-    const tour = await Tour.findByIdAndDelete(req.params.id);
-
-    if (!tour) {
-      return next(new AppError(`No tour found with that ID`, 404));
-    }
-
-    res.status(204).json({
-      status: 'success',
-      data: null,
-    });
-  }
-);
+const createTour = handlerFactory.createOne(Tour);
+const updateTour = handlerFactory.updateOne(Tour);
+const deleteTour = handlerFactory.deleteOne(Tour);
 
 const getTourStats = catchAsync(
   async (req: CustomReq, res: Response, next: NextFunction) => {

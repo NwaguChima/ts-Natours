@@ -1,11 +1,25 @@
 import express from 'express';
-
 import tourController from '../controllers/tourController';
 import authController from '../controllers/authController';
+import reviewRouter from './reviewRoutes';
 
 const router = express.Router();
 
 // router.param('id', tourController.checkId);
+
+// POST /tour/234fad4/reviews
+// GET /tour/234fdas/reviews
+// GET /tour/24543fj/reviews/0175650
+
+// router
+//   .route('/:tourId/reviews')
+//   .post(
+//     authController.protect,
+//     authController.restrictTo('user'),
+//     reviewController.createReview
+//   );
+
+router.use('/:tourId/reviews', reviewRouter);
 
 router.route('/tour-stats').get(tourController.getTourStats);
 

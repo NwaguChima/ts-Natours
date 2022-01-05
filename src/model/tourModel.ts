@@ -141,6 +141,13 @@ tourSchema.virtual('durationWeeks').get(function (this: ITour) {
   return this.duration / 7;
 });
 
+// Virtual Populate
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id',
+});
+
 // Document middleware, runs before save() and create(), but not on insertmany
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
