@@ -1,6 +1,16 @@
 import mongoose, { Schema } from 'mongoose';
+import Tour from './tourModel';
 
-const reveiwSchema = new mongoose.Schema(
+interface IReview {
+  review: string;
+  rating: number;
+  createdAt: Date | undefined;
+  tour: string | undefined;
+  user: string | undefined;
+  r: any;
+}
+
+const reveiwSchema: Schema<IReview> = new mongoose.Schema(
   {
     review: {
       type: String,
@@ -47,6 +57,41 @@ reveiwSchema.pre(/^find/, function (next) {
   });
 
   next();
+});
+
+reveiwSchema.statics.calcAverageRatings = async function (tourId) {
+  const stats = await this.aggregate([
+    {
+      $match: { tour: tourId },
+    },
+    {
+      $group: {
+        _id: '$tour',
+        nRating: { $sum: 1 },
+        avgRating: { $avg: '$rating' },
+      },
+    },
+  ]);
+
+  await Tour.findByIdAndUpdate(tourId, {
+    ratingsQuantity: stats[0].nRating,
+    ratingsAverage: stats[0].avgRating,
+  });
+};
+
+reveiwSchema.post('save', function () {
+  //this points to current review
+  this.constructor.calcAverageRatings(this.tour);
+});
+
+reveiwSchema.pre(/^findOneAnd/, async function (next) {
+  this.r = await this.findOne();
+  console.log(this.r);
+  next();
+});
+
+reveiwSchema.post(/^findOneAnd/, async function () {
+  await this.r.contstructor.calcAverageRatings(this.r.tour);
 });
 
 const Review = mongoose.model('Review', reveiwSchema);
