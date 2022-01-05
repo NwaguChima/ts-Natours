@@ -15,26 +15,8 @@ const aliasTopTours = (req: CustomReq, res: Response, next: NextFunction) => {
   next();
 };
 
-const getAllTours = catchAsync(async (req: CustomReq, res: Response) => {
-  // EXECUTE QUERY
-  const features = new APIFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-  const tours = await features.query;
-
-  res.status(200).json({
-    status: 'success',
-    results: tours.length,
-    data: {
-      tours,
-    },
-  });
-});
-
+const getAllTours = handlerFactory.getAll(Tour);
 const getTour = handlerFactory.getOne(Tour, { path: 'reviews' });
-
 const createTour = handlerFactory.createOne(Tour);
 const updateTour = handlerFactory.updateOne(Tour);
 const deleteTour = handlerFactory.deleteOne(Tour);

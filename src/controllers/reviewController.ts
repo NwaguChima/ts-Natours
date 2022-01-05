@@ -2,25 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { factory } from 'typescript';
 import { CustomUserReq } from '../model/custom';
 import Review from '../model/reviewModel';
-import catchAsync from '../utils/catchAsync';
 import handlerFactory from './handlerFactory';
-
-const getAllReview = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    let filter = {};
-    if (req.params.tourId) filter = { tour: req.params.tourId };
-
-    const reviews = await Review.find(filter);
-
-    res.status(200).json({
-      status: 'success',
-      results: reviews.length,
-      data: {
-        reviews,
-      },
-    });
-  }
-);
+// import catchAsync from '../utils/catchAsync';
 
 const setTourUserIds = (
   req: CustomUserReq,
@@ -32,9 +15,9 @@ const setTourUserIds = (
   if (!req.body.user) req.body.user = req.user!.id;
   next();
 };
-
+const getAllReview = handlerFactory.getAll(Review);
+const getReview = handlerFactory.getOne(Review);
 const createReview = handlerFactory.createOne(Review);
-
 const updateReview = handlerFactory.updateOne(Review);
 const deleteReview = handlerFactory.deleteOne(Review);
 
@@ -44,4 +27,5 @@ export default {
   deleteReview,
   updateReview,
   setTourUserIds,
+  getReview,
 };

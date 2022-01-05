@@ -1,4 +1,4 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { CustomUserReq } from '../model/custom';
 import User from '../model/userModel';
 import AppError from '../utils/appError';
@@ -14,18 +14,6 @@ const filterObj = (obj: any, ...allowedFields: [string, string]) => {
   });
   return newObj;
 };
-
-const getAllUsers = catchAsync(async (req: Request, res: Response) => {
-  const users = await User.find();
-
-  res.status(200).json({
-    status: 'success',
-    results: users.length,
-    data: {
-      users,
-    },
-  });
-});
 
 const updateMe = catchAsync(
   async (req: CustomUserReq, res: Response, next: NextFunction) => {
@@ -71,20 +59,15 @@ const deleteMe = catchAsync(
   }
 );
 
-const getUser = (req: Request, res: Response) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined',
-  });
-};
-
 const createUser = (req: Request, res: Response) => {
   res.status(500).json({
     status: 'error',
-    message: 'This route is not yet defined',
+    message: 'This route is not defined! Please use /signup instead',
   });
 };
 
+const getAllUsers = handlerFactory.getAll(User);
+const getUser = handlerFactory.getOne(User);
 // Do NOT update password with this;
 const updateUser = handlerFactory.updateOne(User);
 const deleteUser = handlerFactory.deleteOne(User);
