@@ -42,6 +42,8 @@ const reveiwSchema: Schema<IReview> = new mongoose.Schema(
   }
 );
 
+reveiwSchema.index({ tour: 1, user: 1 }, { unique: true });
+
 reveiwSchema.pre(/^find/, function (next) {
   //   this.populate({
   //     path: 'tour',
